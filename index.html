@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bilpqx — Los Santos Files</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0b0f;
+      --panel: rgba(12, 14, 20, 0.9);
+      --orange: #ff6b1a;
+      --orange-hot: #ff8c3a;
+      --teal: #00d4c8;
+      --gold: #e8c547;
+      --text: #f2f4f8;
+      --muted: #8b93a7;
+      --line: rgba(255, 107, 26, 0.25);
+      --success: #3dff9a;
+      --danger: #ff4d5e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', system-ui, sans-serif;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(10,11,15,0.45) 0%, rgba(10,11,15,0.88) 50%, #0a0b0f 100%),
+        radial-gradient(ellipse 80% 45% at 50% 0%, rgba(255,107,26,0.15), transparent 55%),
+        url('gta_hero.jpg') center 40% / cover no-repeat;
+      z-index: 0;
+      pointer-events: none;
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black 35%, transparent 85%);
+      opacity: 0.35;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 60px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; cursor: pointer; }
+    .logo {
+      width: 52px; height: 52px; border-radius: 10px;
+      border: 2px solid var(--orange);
+      display: grid; place-items: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px; color: var(--orange-hot);
+      background: linear-gradient(145deg, rgba(255,107,26,0.25), rgba(0,0,0,0.5));
+      box-shadow: 0 0 24px rgba(255,107,26,0.35);
+    }
+    .brand h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px; letter-spacing: 0.1em; line-height: 1;
+    }
+    .brand h1 span { color: var(--orange); }
+    .brand p {
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 0.22em; text-transform: uppercase; margin-top: 4px;
+    }
+    .badge {
+      font-family: 'Oswald', sans-serif;
+      font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--teal);
+      border: 1px solid rgba(0,212,200,0.4);
+      padding: 8px 14px; border-radius: 999px;
+      background: rgba(0,212,200,0.08);
+    }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 32px 28px;
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      margin-bottom: 24px;
+    }
+    .hero-kicker {
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--orange); margin-bottom: 8px;
+    }
+    .panel h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(32px, 6vw, 48px);
+      letter-spacing: 0.04em; line-height: 0.95; margin-bottom: 10px;
+    }
+    .panel h2 em {
+      font-style: normal; color: var(--orange-hot);
+      text-shadow: 0 0 28px rgba(255,107,26,0.4);
+    }
+    .lead { color: var(--muted); font-size: 15px; line-height: 1.5; max-width: 540px; margin-bottom: 22px; }
+    .cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .cat-btn {
+      font-family: 'Oswald', sans-serif;
+      font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 9px 16px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted); cursor: pointer;
+    }
+    .cat-btn:hover { border-color: rgba(255,107,26,0.45); color: var(--text); }
+    .cat-btn.active {
+      background: rgba(255,107,26,0.18);
+      border-color: var(--orange);
+      color: var(--orange-hot);
+    }
+    .upload-zone {
+      border: 2px dashed rgba(255,107,26,0.35);
+      border-radius: 16px; padding: 32px 20px;
+      text-align: center; background: rgba(0,0,0,0.35);
+      position: relative; cursor: pointer;
+    }
+    .upload-zone.dragover { border-color: var(--teal); background: rgba(0,212,200,0.08); }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .upload-zone h3 { font-family: 'Oswald', sans-serif; font-size: 18px; margin: 8px 0 4px; }
+    .upload-zone p { color: var(--muted); font-size: 14px; }
+    .upload-zone .hint { margin-top: 10px; font-size: 12px; color: var(--gold); }
+    .form-row { display: grid; grid-template-columns: 1fr 180px; gap: 12px; margin-top: 16px; }
+    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+    select, input[type="text"], input[type="search"] {
+      width: 100%; padding: 13px 15px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.45); color: var(--text);
+      font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 600; outline: none;
+    }
+    select:focus, input:focus { border-color: var(--orange); }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .btn-primary {
+      font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 13px 20px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, var(--orange), #ff4500);
+      color: #fff; cursor: pointer; box-shadow: 0 8px 28px rgba(255,107,26,0.35);
+    }
+    .btn-secondary {
+      font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 13px 18px; border-radius: 12px;
+      border: 1px solid rgba(255,77,94,0.4); background: transparent;
+      color: var(--danger); cursor: pointer;
+    }
+    .btn-ghost {
+      font-family: 'Oswald', sans-serif; font-size: 12px; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 10px 16px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.05);
+      color: var(--text); cursor: pointer; margin-bottom: 16px;
+    }
+    .pending-box {
+      margin-top: 14px; padding: 12px 14px; border-radius: 12px;
+      border: 1px solid rgba(255,107,26,0.25); background: rgba(255,107,26,0.06); display: none;
+    }
+    .pending-box.show { display: block; }
+    .pending-box strong {
+      font-family: 'Oswald', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--orange-hot);
+    }
+    .pending-box ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+    .section-title {
+      font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--muted); margin: 8px 0 14px;
+    }
+    .file-grid { display: grid; gap: 12px; }
+    .file-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.4); cursor: pointer;
+    }
+    .file-card:hover { border-color: rgba(255,107,26,0.35); background: rgba(255,107,26,0.07); }
+    .file-thumb {
+      width: 72px; height: 48px; border-radius: 8px; object-fit: cover;
+      border: 1px solid rgba(255,107,26,0.25); flex-shrink: 0;
+    }
+    .file-info { flex: 1; min-width: 0; }
+    .file-info strong {
+      display: block; font-size: 15px; font-weight: 700;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .file-info span { font-size: 12px; color: var(--muted); }
+    .tag {
+      font-family: 'Oswald', sans-serif; font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 5px 10px; border-radius: 6px; flex-shrink: 0;
+    }
+    .tag.vehicles { background: rgba(255,107,26,0.12); color: var(--orange-hot); border: 1px solid rgba(255,107,26,0.3); }
+    .tag.map { background: rgba(232,197,71,0.12); color: var(--gold); border: 1px solid rgba(232,197,71,0.3); }
+    .tag.script { background: rgba(120,160,255,0.12); color: #8ab4ff; border: 1px solid rgba(120,160,255,0.3); }
+    .tag.addon { background: rgba(180,100,255,0.12); color: #c9a0ff; border: 1px solid rgba(180,100,255,0.3); }
+    .tag.misc { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid rgba(255,255,255,0.12); }
+    .open-hint {
+      font-size: 11px; color: var(--teal); font-family: 'Oswald', sans-serif;
+      letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0;
+    }
+    .empty {
+      text-align: center; padding: 36px 20px; color: var(--muted);
+      border: 1px dashed rgba(255,255,255,0.1); border-radius: 14px;
+    }
+    .detail-hero {
+      width: 100%; max-height: 280px; object-fit: cover;
+      border-radius: 14px; margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .meta-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px; margin: 20px 0 24px;
+    }
+    .meta-box {
+      padding: 14px; border-radius: 12px;
+      background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+    }
+    .meta-box small {
+      display: block; font-family: 'Oswald', sans-serif; font-size: 10px;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+    }
+    .meta-box strong { font-size: 16px; font-weight: 700; }
+    .detail-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn-dl {
+      font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 13px 20px; border-radius: 12px;
+      border: 1px solid rgba(0,212,200,0.45); background: rgba(0,212,200,0.12);
+      color: var(--teal); cursor: pointer;
+    }
+    .btn-del {
+      font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 13px 20px; border-radius: 12px;
+      border: 1px solid rgba(255,77,94,0.4); background: transparent;
+      color: var(--danger); cursor: pointer;
+    }
+    .toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: rgba(12,14,20,0.95);
+      border: 1px solid rgba(61,255,154,0.4); color: var(--success);
+      padding: 14px 24px; border-radius: 12px;
+      font-family: 'Oswald', sans-serif; letter-spacing: 0.08em;
+      font-size: 12px; text-transform: uppercase; z-index: 50; transition: 0.35s;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    footer { margin-top: 36px; text-align: center; color: #5a6275; font-size: 13px; }
+    footer b { color: var(--orange); font-family: 'Oswald', sans-serif; }
+    .view { display: none; }
+    .view.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand" id="btnHome">
+        <div class="logo">BX</div>
+        <div>
+          <h1>BILPQX <span>FILES</span></h1>
+          <p>Los Santos · GTA V Mods</p>
+        </div>
+      </div>
+      <div class="badge">by bilpqx</div>
+    </header>
+
+    <div id="viewHome" class="view active">
+      <section class="panel">
+        <p class="hero-kicker">bilpqx presents</p>
+        <h2>Upload Your <em>Mods</em></h2>
+        <p class="lead">
+          Drag & drop files, pick a category, then open each file on its own page.
+          Dark Los Santos night style — by bilpqx.
+        </p>
+        <div class="cats" id="catFilters">
+          <button type="button" class="cat-btn active" data-cat="all">All</button>
+          <button type="button" class="cat-btn" data-cat="vehicles">Vehicles</button>
+          <button type="button" class="cat-btn" data-cat="map">Map</button>
+          <button type="button" class="cat-btn" data-cat="script">Script</button>
+          <button type="button" class="cat-btn" data-cat="addon">Addon</button>
+          <button type="button" class="cat-btn" data-cat="misc">Misc</button>
+        </div>
+        <div class="upload-zone" id="dropZone">
+          <input type="file" id="fileInput" multiple />
+          <div style="font-size:36px">📁</div>
+          <h3>Drop files here</h3>
+          <p>or click to browse from your device</p>
+          <p class="hint">Max 4 GB listed · full download in browser up to ~5 MB · by bilpqx</p>
+        </div>
+        <div class="pending-box" id="pendingBox">
+          <strong>Selected files</strong>
+          <ul id="pendingList"></ul>
+        </div>
+        <div class="form-row">
+          <input type="text" id="fileName" placeholder="File name / mod title (optional)" />
+          <select id="category">
+            <option value="vehicles">Vehicles</option>
+            <option value="map">Map</option>
+            <option value="script">Script</option>
+            <option value="addon">Addon</option>
+            <option value="misc">Misc</option>
+          </select>
+        </div>
+        <div class="toolbar">
+          <button type="button" class="btn-primary" id="btnUpload">Upload to Library</button>
+          <button type="button" class="btn-secondary" id="btnClearAll">Delete All Files</button>
+        </div>
+      </section>
+      <p class="section-title">Library · click a file to open its page</p>
+      <div class="file-grid" id="fileList"></div>
+      <div class="empty" id="emptyState">No files yet. Upload your first mod.</div>
+    </div>
+
+    <div id="viewDetail" class="view">
+      <section class="panel">
+        <button type="button" class="btn-ghost" id="btnBack">← Back to library</button>
+        <img class="detail-hero" id="detailHero" src="gta_hero.jpg" alt="Los Santos" />
+        <p class="hero-kicker" id="detailCat">FILE</p>
+        <h2 id="detailTitle">File name</h2>
+        <p class="lead" id="detailSub">File page · bilpqx</p>
+        <div class="meta-grid">
+          <div class="meta-box"><small>Category</small><strong id="detailCategory">—</strong></div>
+          <div class="meta-box"><small>Size</small><strong id="detailSize">—</strong></div>
+          <div class="meta-box"><small>Uploaded</small><strong id="detailDate">—</strong></div>
+          <div class="meta-box"><small>Owner</small><strong>bilpqx</strong></div>
+        </div>
+        <div class="detail-actions">
+          <button type="button" class="btn-dl" id="btnDownload">Download</button>
+          <button type="button" class="btn-del" id="btnDelete">Delete file</button>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <b>BILPQX</b> · Los Santos Files · GTA V aesthetic · Not affiliated with Rockstar Games
+    </footer>
+  </div>
+  <div class="toast" id="toast">OK</div>
+  <script>
+    const STORAGE_KEY = 'bilpqx_files_dark_v1';
+    const MAX_FILE_BYTES = 4 * 1024 * 1024 * 1024;
+    const STORE_DATA_MAX = 5 * 1024 * 1024;
+    let pendingFiles = [];
+    let filter = 'all';
+    let currentFileId = null;
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const emptyState = document.getElementById('emptyState');
+    const toast = document.getElementById('toast');
+    const pendingBox = document.getElementById('pendingBox');
+    const pendingList = document.getElementById('pendingList');
+
+    function loadStore() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+      catch { return []; }
+    }
+    function saveStore(arr) { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+      return (bytes / 1073741824).toFixed(2) + ' GB';
+    }
+    function escapeHtml(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+    function showView(name) {
+      document.getElementById('viewHome').classList.toggle('active', name === 'home');
+      document.getElementById('viewDetail').classList.toggle('active', name === 'detail');
+      window.scrollTo(0, 0);
+    }
+    function goHome() {
+      currentFileId = null;
+      history.replaceState(null, '', location.pathname + location.search);
+      showView('home');
+      renderList();
+    }
+    function openFile(id) {
+      const item = loadStore().find(x => x.id === id);
+      if (!item) { showToast('File not found'); goHome(); return; }
+      currentFileId = id;
+      history.replaceState(null, '', '#file/' + encodeURIComponent(id));
+      document.getElementById('detailTitle').textContent = item.name;
+      document.getElementById('detailCat').textContent = (item.category || 'file').toUpperCase();
+      document.getElementById('detailCategory').textContent = item.category;
+      document.getElementById('detailSize').textContent = formatSize(item.size);
+      document.getElementById('detailDate').textContent = new Date(item.date).toLocaleString('en-US');
+      document.getElementById('detailSub').textContent = 'File page · bilpqx';
+      showView('detail');
+    }
+    function routeFromHash() {
+      const m = location.hash.match(/^#file\/(.+)$/);
+      if (m) openFile(decodeURIComponent(m[1]));
+      else goHome();
+    }
+    function renderPending() {
+      if (!pendingFiles.length) {
+        pendingBox.classList.remove('show');
+        pendingList.innerHTML = '';
+        return;
+      }
+      pendingBox.classList.add('show');
+      pendingList.innerHTML = pendingFiles.map(f =>
+        '<li>' + escapeHtml(f.name) + ' <span style="opacity:.7">(' + formatSize(f.size) + ')</span></li>'
+      ).join('');
+    }
+    function renderList() {
+      const items = loadStore();
+      const filtered = filter === 'all' ? items : items.filter(i => i.category === filter);
+      fileList.innerHTML = '';
+      if (!filtered.length) { emptyState.style.display = 'block'; return; }
+      emptyState.style.display = 'none';
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'file-card';
+        card.innerHTML =
+          '<img class="file-thumb" src="gta_hero.jpg" alt="" />' +
+          '<div class="file-info"><strong>' + escapeHtml(item.name) + '</strong>' +
+          '<span>' + formatSize(item.size) + ' · ' + new Date(item.date).toLocaleString('en-US') + '</span></div>' +
+          '<span class="tag ' + item.category + '">' + item.category + '</span>' +
+          '<span class="open-hint">Open →</span>';
+        card.addEventListener('click', () => openFile(item.id));
+        fileList.appendChild(card);
+      });
+    }
+    function addFiles(list) {
+      pendingFiles = Array.from(list || []);
+      if (pendingFiles.length === 1) {
+        document.getElementById('fileName').value = pendingFiles[0].name.replace(/\.[^.]+$/, '');
+      }
+      renderPending();
+      if (pendingFiles.length) showToast(pendingFiles.length + ' file(s) selected');
+    }
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      addFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', () => addFiles(fileInput.files));
+    document.getElementById('btnUpload').addEventListener('click', async () => {
+      const cat = document.getElementById('category').value;
+      const customName = document.getElementById('fileName').value.trim();
+      const items = loadStore();
+      if (!pendingFiles.length) { showToast('Please select a file first'); return; }
+      showToast('Uploading...');
+      try {
+        for (let i = 0; i < pendingFiles.length; i++) {
+          const f = pendingFiles[i];
+          if (f.size > MAX_FILE_BYTES) { showToast('File too large (max 4 GB)'); continue; }
+          let data = null;
+          if (f.size <= STORE_DATA_MAX) data = await readFileAsDataURL(f);
+          const ext = f.name.includes('.') ? f.name.slice(f.name.lastIndexOf('.')) : '';
+          const name = (customName && pendingFiles.length === 1)
+            ? (customName.endsWith(ext) ? customName : customName + ext) : f.name;
+          items.unshift({
+            id: Date.now() + '-' + i + '-' + Math.random().toString(36).slice(2, 8),
+            name, size: f.size, category: cat, date: Date.now(), data, owner: 'bilpqx'
+          });
+          if (!data) showToast('Listed. Full 4 GB storage needs a server.');
+        }
+        saveStore(items);
+        pendingFiles = [];
+        fileInput.value = '';
+        document.getElementById('fileName').value = '';
+        renderPending();
+        renderList();
+        showToast('Upload successful');
+      } catch (e) {
+        console.error(e);
+        showToast('Upload failed');
+      }
+    });
+    document.getElementById('btnClearAll').addEventListener('click', () => {
+      if (!loadStore().length) { showToast('Library is empty'); return; }
+      if (!confirm('Delete ALL files?')) return;
+      saveStore([]);
+      renderList();
+      showToast('All files deleted');
+    });
+    document.getElementById('btnDownload').addEventListener('click', () => {
+      const item = loadStore().find(x => x.id === currentFileId);
+      if (!item || !item.data) { showToast('No file data to download'); return; }
+      const a = document.createElement('a');
+      a.href = item.data;
+      a.download = item.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast('Download started');
+    });
+    document.getElementById('btnDelete').addEventListener('click', () => {
+      if (!currentFileId) return;
+      if (!confirm('Delete this file?')) return;
+      saveStore(loadStore().filter(x => x.id !== currentFileId));
+      showToast('File deleted');
+      goHome();
+    });
+    document.getElementById('btnBack').addEventListener('click', goHome);
+    document.getElementById('btnHome').addEventListener('click', goHome);
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filter = btn.dataset.cat;
+        renderList();
+      });
+    });
+    window.addEventListener('hashchange', routeFromHash);
+    routeFromHash();
+  </script>
+</body>
+</html>
